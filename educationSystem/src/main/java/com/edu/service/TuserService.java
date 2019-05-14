@@ -12,4 +12,7 @@ public interface TuserService  extends IService<Tuser>{
     List<Tuser> selectSpecificInfor(Integer id);
     List<Tuser> selectByCollegeidAndClassno(String collegename,String classno);
     List<Tuser> selectByCollegeid(String collegeid);
+    Tuser selectByusername(String username);
+    List selectByCollegeidAndClassno(String collegeid);
+
 }

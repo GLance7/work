@@ -52,4 +52,14 @@ public class TuserServiceImpl   extends BaseService<Tuser> implements TuserServi
     public List<Tuser> selectByCollegeid(String collegeid) {
         return tuserMapper.selectByCollegeid(collegeid);
     }
+
+    @Override
+    public Tuser selectByusername(String username) {
+        return tuserMapper.selectByusername(username);
+    }
+
+    @Override
+    public List selectByCollegeidAndClassno(String collegeid) {
+        return tuserMapper.selectByCollegeidAndClassno(collegeid);
+    }
 }

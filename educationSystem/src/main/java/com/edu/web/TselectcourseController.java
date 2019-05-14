@@ -1,5 +1,6 @@
 package com.edu.web;
 
+import com.edu.entity.College;
 import com.edu.entity.Tcourse;
 import com.edu.entity.Tselectcourse;
 import com.edu.entity.Tuser;
@@ -17,10 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @RequestMapping("/selectcourse")
@@ -95,6 +93,7 @@ public class TselectcourseController {
     }
 
     /*成绩信息*/
+    /*选课表中状态为已考试的数据*/
     @ResponseBody
     @RequestMapping("/getgradeInfor")
     public Map<String,Object> getgradeInfor(){
@@ -112,28 +111,48 @@ public class TselectcourseController {
             tselectcourse.setCourse(sb.toString());
         }
         resultmap.put("data",selectcourselist);
-        System.out.println("12345   "+selectcourselist.toString()+"  11111 "+resultmap.toString());
+        System.out.println("成绩数据测试   "+selectcourselist.toString()+"成绩返回数据测试 "+resultmap.toString());
         return resultmap;
     }
 
+    /*查询某个学院的班级*/
+    @ResponseBody
+    @RequestMapping("/selectClassnoByCollege")
+    public Map<String,Object> selectClassnoByCollege(String collegename){
+        LinkedHashMap<String, Object> resultmap = new LinkedHashMap<String, Object>();
+        /*用set存储，不重复存储相同的班级号*/
+        Set<String> setclassno = new HashSet<>();
+        try {
+            String c = collegeService.selectcollegeidBycollegename(collegename);
+            List list = tuserService.selectByCollegeidAndClassno(c);
+            for(Object s:list){
+                setclassno.add(s.toString());
+            }
+            resultmap.put("state","success");
+        }catch (Exception e){
+            resultmap.put("state","fail");
+        }
+        return  resultmap;
+    }
+
     /*通过学院名和班级号来查询选课结果*/
-    /*返回数据中key-status（通过/不通过/等待），value为对应查出的数据*/
+    /*返回数据中key-status（通过/未通过/等待），value为对应查出的数据*/
     @ResponseBody
     @RequestMapping("/selectBycollegenameAndclassno")
     public Map<String,Object> selectBycollegenameAndclassno(String collegename,String classno){
         LinkedHashMap<String, Object> resultmap = new LinkedHashMap<String, Object>();
         List<String> statuslist = new ArrayList<>();
         statuslist.add("通过");
-        statuslist.add("不通过");
+        statuslist.add("未通过");
         statuslist.add("等待");
         List<Tselectcourse> selectcourse = new ArrayList<>();
         //如果学院名为null，则通过默认的status查询
         if(collegename==null){
-
             for(String s1:statuslist){
                 selectcourse = tselectcourseService.selectByStatus(s1);
                 resultmap.put(s1,selectcourse);
             }
+            resultmap.put("success","选课结果在此");
            return resultmap;
         }
         //如果学院名不为空
@@ -152,6 +171,7 @@ public class TselectcourseController {
                     }
                     resultmap.put(status,selectcourse);
                 }
+                resultmap.put("success","此"+collegename+"选课结果如下");
                 return  resultmap;
             }
             //班级也不为空，则为学院+班级+status查询
@@ -166,7 +186,8 @@ public class TselectcourseController {
                     }
                     resultmap.put(status,selectcourse);
                 }
-                System.out.println("lala  "+resultmap.toString()+"    "+resultmap.get("通过").getClass());
+                System.out.println("选课管理测试  "+resultmap.toString()+"    "+resultmap.get("通过").getClass());
+                resultmap.put("success","此"+collegename+"-"+classno+"选课结果成功");
                 return  resultmap;
             }
         }

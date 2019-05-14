@@ -15,5 +15,7 @@ public interface TuserMapper extends MyMapper<Tuser> {
     List<Tuser> selectSpecificInfor(Integer id);
     List<Tuser> selectByCollegeidAndClassno(String collegeid,String classno);
     List<Tuser> selectByCollegeid(String collegeid);
+    Tuser selectByusername(String username);
+    List selectByCollegeidAndClassno(String collegeid);
 
 }

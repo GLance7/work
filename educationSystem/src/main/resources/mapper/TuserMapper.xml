@@ -95,6 +95,14 @@
   <select id="selectByCollegeid" resultMap="MapSelectCourse">
     select * from t_user where t_user.collegeid = #{collegeid}
   </select>
+  <!--根据当前用户username查询信息-->
+  <select id="selectByusername" resultMap="StudentResultMap">
+    select * from t_user where t_user.user_name = #{username}
+  </select>
+  <!--根据学院名来查询对应学院的班级号-->
+  <select id="selectByCollegeidAndClassno" resultMap="StudentResultMap">
+    select classno from t_user where t_user.collegeid = #{collegeid} and classno != '00'
+  </select>
 
 
 </mapper>

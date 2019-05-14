@@ -56,6 +56,28 @@ public class UserController {
 	Trole currentRole;
 
 
+
+	/*获得所有的学院*/
+	@ResponseBody
+	@RequestMapping("/getAllCollege")
+	public Map<String,Object> getAllCollege(){
+		LinkedHashMap<String,Object> resultMap = new LinkedHashMap<>();
+		try {
+			Example ex = new Example(College.class);
+			List<College> collegelist = collegeService.selectByExample(ex);
+			if(collegelist.size()==0){
+				resultMap.put("fail",false);
+				resultMap.put("msg","系统异常，请联系管理员（13778860798）");
+			}
+			resultMap.put("success",true);
+			resultMap.put("msg","查询成功！");
+			resultMap.put("data",collegelist);
+		}catch (Exception e){
+			resultMap.put("fail",false);
+			resultMap.put("msg","系统异常,未知错误，请联系管理员（13778860798）");
+		}
+		return resultMap;
+	}
 	
 	/**
      * 用户登录请求
@@ -141,7 +163,6 @@ public class UserController {
 	}
 
 
-
 	/**
 	 * 保存角色信息
 	 */
@@ -224,22 +245,23 @@ public class UserController {
 	*/
 	@ResponseBody
 	@GetMapping("/getPersonInfo")
-	public String getPersonInfor( ) throws Exception{
-		Tuser currentUser=tuserService.selectByExample(tuserExample).get(0);
-		System.out.println("当前  "+currentUser.getUserName());
-		String collegeid = currentUser.getCollegeid();
+	public String getPersonInfor(@RequestParam String token) throws Exception{
+	//	Tuser currentUser=tuserService.selectByExample(tuserExample).get(0);
+		System.out.println("当前  "+token);
+		Tuser u = tuserService.selectByusername(token);
+		String collegeid = u.getCollegeid();
 		System.out.println("反   "+collegeid);
         String collegename = collegeService.selectCollegeNameByCollegeId(collegeid);
 		List<Object> personlist = new ArrayList<>();
-		personlist.add(currentUser.getBz());
-		personlist.add(currentUser.getUserName());
-		personlist.add(currentUser.getTrueName());
-		personlist.add(currentUser.getPhone());
-		personlist.add(currentUser.getGraduate());
-		personlist.add(currentUser.getWorkingtime());
-		personlist.add(currentUser.getNativeplace());
-		personlist.add(currentUser.getSex());
-		personlist.add(currentUser.getPolitical());
+		personlist.add(u.getBz());
+		personlist.add(u.getUserName());
+		personlist.add(u.getTrueName());
+		personlist.add(u.getPhone());
+		personlist.add(u.getGraduate());
+		personlist.add(u.getWorkingtime());
+		personlist.add(u.getNativeplace());
+		personlist.add(u.getSex());
+		personlist.add(u.getPolitical());
 		personlist.add(collegename);
 		System.out.println("哦哦  "+personlist.toString());
 		return personlist.toString();
@@ -249,11 +271,19 @@ public class UserController {
 	* 修改个人信息
 	* 这里有点问题
 	* */
+	@ResponseBody
 	@PostMapping("/updatePersonInfor")
 	//*@RequestParam("username") String name
 	public String updatePersonInfor(Tuser tuser){
-		tuserService.updateAll(tuser);
-		return "操作成功！";
+		String resultmsg = new String();
+		try {
+			Integer num = tuserService.updateNotNull(tuser);
+			System.out.println("测试修改个人信息："+num);
+			resultmsg = "success：恭喜你，操作成功了！！";
+		}catch (Exception e){
+			resultmsg = "fail:系统异常，操作失败了！！";
+		}
+		return resultmsg;
 		/*Tuser tuser = new Tuser();
 		Tuser currentUser=tuserService.selectByExample(tuserExample).get(0);
 		tuser.setTrueName("测试名");
@@ -261,13 +291,14 @@ public class UserController {
 		tuserService.updateChangeInfor(tuser);
 		return "success";*/
 	}
-
 	/*获得当前用户教的课程*/
+	/*根据传入的用户名来查找他所教课程*/
 	@ResponseBody
 	@RequestMapping("/teachercourse")
-	public Map<String,Object> teachercourse(){
+	public Map<String,Object> teachercourse(@RequestParam String token){
 		LinkedHashMap<String, Object> resultmap = new LinkedHashMap<String, Object>();
-		List<Integer> list = getCourseBycurrentid();
+
+		List<Integer> list = getCourseBycurrentid(token);
 		if(list.size()==0){
 			resultmap.put("state","fail");
 			resultmap.put("msg","您还没有教授的课程哟！");
@@ -298,17 +329,18 @@ public class UserController {
 	/*获得当前用户的学生和当前用户学生的成绩*/
 	@ResponseBody
 	@RequestMapping("/myStudentAndGrade")
-	public Map<String,Object> myStudentAndGrade(){
+	public Map<String,Object> myStudentAndGrade(@RequestParam String token){
 		LinkedHashMap<String, Object> datamap = new LinkedHashMap<String, Object>();
 		LinkedHashMap<String, Object> resultmap = new LinkedHashMap<String, Object>();
 		//获得courseid
-		List<Integer> list = getCourseBycurrentid();
-		System.out.println("哈哈la   "+list.toString());
+		List<Integer> list = getCourseBycurrentid(token);
+		System.out.println("查询当前老师教的课程号   "+list.toString());
 
 		List<String> statuslist = new ArrayList<>();
+		/*三种状态*/
 		statuslist.add("已考试");
 		statuslist.add("通过");
-		statuslist.add("不通过");
+		statuslist.add("未通过");
 		//statuslist.add("等待");
 		if(list.size()==0){
 			resultmap.put("state","fail");
@@ -316,12 +348,12 @@ public class UserController {
 		}else{
 			List<List> list111 = new ArrayList<>();
 			List<Tselectcourse> tselectcourseList = new ArrayList<>();
-			System.out.println("教授  "+statuslist.toString());
+			System.out.println("测试状态list里是否有数据  "+statuslist.toString());
 			//保留学生的id
 			Set<Integer> setid = new HashSet<>();
 			for(String status:statuslist){
 				for(Integer id:list){
-					System.out.println("踩踩踩la  "+id+"   "+status);
+					System.out.println("测试每种status的学生的id  "+id+"   "+status);
 					tselectcourseList = tselectcourseService.selectBycourseidAndStatus(id,status);
 					for(Tselectcourse tselectcourse:tselectcourseList){
 						setid.add(tselectcourse.getStudentid());
@@ -334,7 +366,7 @@ public class UserController {
 			resultmap.put("state","success");
 			resultmap.put("msg","成功！");
 		}
-		System.out.println("当前学生 "+resultmap.toString());
+		System.out.println("当前教授的学生测试 "+resultmap.toString());
 		return resultmap;
 	}
 
@@ -342,12 +374,10 @@ public class UserController {
 
 
 	/*查询该老师教的所有课程*/
-	private List<Integer> getCourseBycurrentid(){
-		Tuser currentUser=tuserService.selectByExample(tuserExample).get(0);
-		Integer teacherid = currentUser.getId();
-		//int teacherid=3;
-
-
+	private List<Integer> getCourseBycurrentid(String name){
+		Tuser user = tuserService.selectByusername(name);
+		//Tuser currentUser=tuserService.selectByExample(tuserExample).get(0);
+		Integer teacherid = user.getId();
 		List<Integer> list = new ArrayList<>();
 		List<Tcourse> courselist = tcourseService.selectCourseByTeacherid(teacherid);
 		//System.out.println("老师  "+courselist.get(0).getCoursename());
@@ -361,11 +391,12 @@ public class UserController {
 	/*查询当前用户的成绩(学生)*/
 	@ResponseBody
 	@RequestMapping("/getGradeByid")
-	public  Map<String,Object> getGradeid(){
+	public  Map<String,Object> getGradeid(@RequestParam String token){
 		LinkedHashMap<String, Object> resultmap = new LinkedHashMap<String, Object>();
 		//获得当前用户的id
-		Tuser currentUser=tuserService.selectByExample(tuserExample).get(0);
-		Integer id = currentUser.getId();
+		//Tuser currentUser=tuserService.selectByExample(tuserExample).get(0);
+		Tuser u = tuserService.selectByusername(token);
+		Integer id = u.getId();
 		String status = "已考试";
 		List<Tselectcourse> tselectcourseList = tselectcourseService.selectBystudentidAndstatus(id,status);
 		if(tselectcourseList.size()==0){
@@ -378,13 +409,13 @@ public class UserController {
 			sb.append(course.getCourseno()+","+course.getCoursename());
 			s.setCourse(sb.toString());
 			sb.delete(0,sb.length());
-			sb.append(currentUser.getUserName()+","+currentUser.getTrueName());
+			sb.append(u.getUserName()+","+u.getTrueName());
 			s.setUser(sb.toString());
 		}
 		resultmap.put("state","success");
 		resultmap.put("state","成功");
 		resultmap.put("datamap",tselectcourseList);
-		resultmap.put("currentUser",currentUser);
+		resultmap.put("currentUser",u);
 
 		/*分页处理，暂时不做*/
 		/*     PageHelper.startPage(jqgridbean.getPage(), jqgridbean.getLength());
@@ -395,17 +426,19 @@ public class UserController {
 	}
 
 	/*查看当前用户的选课结果*/
+	/*根据当前用户名查*/
 	@ResponseBody
 	@RequestMapping("/getselectResult")
-	public Map<String,Object> getselectResult(){
+	public Map<String,Object> getselectResult(@RequestParam String token){
 		LinkedHashMap<String, Object> resultmap = new LinkedHashMap<String, Object>();
 		//获得当前用户的id
-		Tuser currentUser=tuserService.selectByExample(tuserExample).get(0);
-		Integer id = currentUser.getId();
+		//Tuser currentUser=tuserService.selectByExample(tuserExample).get(0);
+		Tuser u = tuserService.selectByusername(token);
+		Integer id = u.getId();
 
 		List<String> statuslist = new ArrayList<>();
 		statuslist.add("通过");
-		statuslist.add("不通过");
+		statuslist.add("未通过");
 		StringBuffer sb = new StringBuffer();
 		for(String status:statuslist){
 			List<Tselectcourse> tselectcourseList = tselectcourseService.selectBystudentidAndstatus(id,status);
@@ -420,7 +453,7 @@ public class UserController {
 				//System.out.println("ooooo  "+user.getTrueName());
 				sb.append(course.getCourseno()+","+course.getCoursename()+","+course.getCredit()+","+course.getStarttime()+","+course.getClasstime()+","+course.getPlace()+",");
 				t.setCourse(sb.toString());
-				t.setUser(currentUser.getTrueName());
+				t.setUser(u.getTrueName());
 				t.setTeachername(","+user.getTrueName());
 				t.setCollegename(college.getCollegename());
 			}
@@ -430,21 +463,24 @@ public class UserController {
 	}
 
 	/*学生的我要选课功能*/
+	/*根据当前传入的课程id和用户名来插入到表中*/
 	@ResponseBody
 	@RequestMapping("/toMyselectCourse")
-	public String toMyselectCourse(Integer courseid){
-		String msg = "success";
+	public String toMyselectCourse(@RequestParam Integer courseid,@RequestParam String token){
+		String msg = new String();
 		//获得当前用户的id
-		Tuser currentUser=tuserService.selectByExample(tuserExample).get(0);
-		Integer id = currentUser.getId();
-		Tselectcourse tselectcourse = new Tselectcourse();
-		tselectcourse.setStudentid(id);
-		tselectcourse.setCourseid(courseid);
-		tselectcourse.setStatus("等待");
+		//Tuser currentUser=tuserService.selectByExample(tuserExample).get(0);
 		try{
+			Tuser u = tuserService.selectByusername(token);
+			Integer id = u.getId();
+			Tselectcourse tselectcourse = new Tselectcourse();
+			tselectcourse.setStudentid(id);
+			tselectcourse.setCourseid(courseid);
+			tselectcourse.setStatus("等待");
 			tselectcourseService.saveNotNull(tselectcourse);
+			msg = "success:选课成功，等待审核！请及时刷新和注意您的选课结果！";
 		}catch (Exception e){
-			msg = "fail";
+			msg = "fail:选课失败哟，系统异常！";
 		}
 		return  msg;
 	}
@@ -454,7 +490,7 @@ public class UserController {
 	@ResponseBody
 	@RequestMapping("/getstartSelect")
 	public List<Tcourse> getstartSelect(){
-		String status = "开选";
+		String status = "已开选";
 		List<Tcourse> course = tcourseService.selectByStatus(status);
 		return course;
 	}
@@ -480,20 +516,14 @@ public class UserController {
 			if (tmenuService.selectCountByExample(example)==0) {
 				continue;
 			}else{
-				/*StringBuffer sb = new StringBuffer();
-				sb.append(jsonObject.get("icon").getAsString());*/
 				jsonObject.add("children",getAllMenuJsonArrayByParentId(jsonObject.get("id").getAsInt(),roleId));
-				/*jsonObject.add("children",result);*/
 				result.add(jsonObject);
 				System.out.println("嘛  "+jsonObject.toString());
-				//list.add(jsonObject);
-
 			}
 		}
-		System.out.println("wwww  "+result.toString());
+		/*System.out.println("wwww  "+result.toString());
 		System.out.println("嘛 jyjy   "+jsonArray.toString());
-		System.out.println("嘛  "+jsonObject.toString());
-
+		System.out.println("嘛  "+jsonObject.toString());*/
 		return result;
 	}
 
@@ -502,27 +532,22 @@ public class UserController {
 	//获取根频道下子频道菜单列表集合
 	private JsonArray getAllMenuJsonArrayByParentId(Integer parentId,Integer roleId){
 		JsonArray jsonArray=this.getMenuByParentId(parentId, roleId);
-
-		System.out.println("二  "+parentId+"    "+roleId+"   "+jsonArray.toString());
+		//System.out.println("二  "+parentId+"    "+roleId+"   "+jsonArray.toString());
 		for(int i=0;i<jsonArray.size();i++){
 			JsonObject jsonObject=(JsonObject) jsonArray.get(i);
 			//判断该节点下是否还有子节点
 			Example example=new Example(Tmenu.class);
-			System.out.println("呵呵     "+example.toString());
+			//System.out.println("呵呵     "+example.toString());
 			example.or().andEqualTo("pId",jsonObject.get("id").getAsString());
-			//if("true".equals(jsonObject.get("spread").getAsString())){
 			if (tmenuService.selectCountByExample(example)==0) {
 				continue;
 			}else{
-				//二级或三级菜单
+				//二级菜单
 				jsonObject.add("children", getAllMenuJsonArrayByParentId(jsonObject.get("id").getAsInt(),roleId));
 			}
 		}
 		return jsonArray;
 	}
-
-
-
 
 	/**
 	 * 根据父节点和用户角色id查询菜单
@@ -530,40 +555,34 @@ public class UserController {
 	private JsonArray getMenuByParentId(Integer parentId,Integer roleId){
 		//List<Menu> menuList=menuService.findByParentIdAndRoleId(parentId, roleId);
 		HashMap<String,Object> paraMap=new HashMap<String,Object>();
-		System.out.println("获得pid   "+parentId+"   "+roleId);
+		//System.out.println("获得pid   "+parentId+"   "+roleId);
 		paraMap.put("pid",parentId);
 		paraMap.put("roleid",roleId);
 		List<Tmenu> menuList=tmenuService.selectByParentIdAndRoleId(paraMap);
 
-
 		JsonArray jsonArray=new JsonArray();
 		for(Tmenu menu:menuList){
-			System.out.println("哈了   "+menu);
+			//System.out.println("哈了   "+menu);
 			JsonObject jsonObject=new JsonObject();
 			jsonObject.addProperty("id", menu.getId()); // 节点id
 			jsonObject.addProperty("title", menu.getName()); // 节点名称
-			jsonObject.addProperty("spread", false); // 不展开
+			jsonObject.addProperty("spread", false); // 不展开（暂时不适用）
 			jsonObject.addProperty("icon", menu.getIcon());
 			jsonObject.addProperty("url", menu.getUrl()); // 菜单请求地址
-			/*if(StringUtils.isNotEmpty(menu.getUrl())){
-
-			}*/
 			jsonArray.add(jsonObject);
 		}
 		return jsonArray;
 	}
 
-
-
-
-	public void putTmenuOneClassListIntoSession(HttpSession session){
+/*保存一下session，但是没解决的是：前后分离情况下每次建立连接后会有一个session，
+* 每个sessionId不一样，怎么办呢？？？
+* */
+	/*public void putTmenuOneClassListIntoSession(HttpSession session){
 		//用来在welcome.ftl中获取主菜单列表
 		Example example=new Example(Tmenu.class);
 		example.or().andEqualTo("pId",1);
 		List<Tmenu> tmenuOneClassList=tmenuService.selectByExample(example);
-
-		System.out.println("前期   "+tmenuOneClassList.toString());
-
+		//System.out.println("前期   "+tmenuOneClassList.toString());
 		session.setAttribute("tmenuOneClassList", tmenuOneClassList);
-	}
+	}*/
 }

@@ -47,8 +47,6 @@ public class UserAdminController {
     @RequestMapping("/tousermanage")
     @RequiresPermissions(value = {"用户管理"})
     public String tousermanage() {
-
-
         return "power/user";
     }
 
