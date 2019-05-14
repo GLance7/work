@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.edu.mapper.TselectcourseMapper">
+  <resultMap id="BaseResultMap" type="com.edu.entity.Tselectcourse">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="studentid" jdbcType="INTEGER" property="studentid" />
+    <result column="courseid" jdbcType="INTEGER" property="courseid" />
+    <result column="grade" jdbcType="INTEGER" property="grade" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+
+  </resultMap>
+
+  <!--新增一条数据-->
+  <!--<insert id="insertCourse" parameterType="com.zjt.entity.Tcourse">
+    INSERT INTO t_course(id,coursename,teacherid,collegeid,credit,studytime,status,starttime,classtime,place)
+    VALUES (#{id},#{tcourse.coursename},#{tcourseteacherid},#{collegeid},#{credit},#{studytime},#{status}),#{starttime},#{classtime},#{place})
+  </insert>
+  &lt;!&ndash;更新一条数据&ndash;&gt;
+  <update id="updateCourse" parameterType="com.zjt.entity.Tcourse">
+    UPDATE t_course
+    set
+    <if test="coursename!=null">coursename = #{coursename}</if>
+    <if test="teacherid!=null">teacherid = #{teacherid}</if>
+    <if test="collegeid!=null">collegeid = #{collegeid}</if>
+    <if test="credit!=null">credit = #{credit}</if>
+    <if test="studytime!=null">studytime = #{studytime}</if>
+    <if test="status!=null">status = #{status}</if>
+    <if test="starttime!=null">starttime = #{starttime}</if>
+    <if test="classtime!=null">classtime = #{classtime}</if>
+    <if test="place!=null">place = #{place}</if>
+    where id=#{id}
+  </update>
+
+  &lt;!&ndash;删除&ndash;&gt;
+  <delete id="deleteCourse" parameterType="Long">
+    DELETE FROM t_course
+    WHERE  id = #{id}
+  </delete>
+
+  <select id="selectCourseById" resultMap="BaseResultMap">
+    select * from t_course where id = #{id}
+
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select * from t_course where id=#{id}
+  </select>-->
+  <select id="selectByStatus" resultMap="BaseResultMap" parameterType="java.lang.String">
+    select * from tselectcourse where status = #{status}
+  </select>
+
+  <!--通过studentid和status查询-->
+  <select id="selectBystudentidAndstatus" resultMap="BaseResultMap">
+    select * from tselectcourse where studentid = #{id} and status = #{status}
+  </select>
+
+  <select id="selectBycourseidAndStatus" resultMap="BaseResultMap">
+    select * from tselectcourse where tselectcourse.courseid = #{courseid} and tselectcourse.status = #{status}
+  </select>
+
+
+  <!--<update id="update"-->
+</mapper>

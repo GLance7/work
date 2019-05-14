@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.edu.mapper.TinforMapper">
+  <resultMap id="BaseResultMap" type="com.edu.entity.Tinfor">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="inforid" jdbcType="INTEGER" property="inforid" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+  </resultMap>
+
+  <select id="selectAll" resultMap="BaseResultMap">
+    select * from t_infor
+  </select>
+</mapper>

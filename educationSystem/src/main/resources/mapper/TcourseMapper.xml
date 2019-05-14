@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.edu.mapper.TcourseMapper">
+  <resultMap id="BaseResultMap" type="com.edu.entity.Tcourse">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="courseno" jdbcType="VARCHAR" property="courseno" />
+    <result column="coursename" jdbcType="VARCHAR" property="coursename" />
+    <result column="teacherid" jdbcType="INTEGER" property="teacherid" />
+    <result column="collegeid" jdbcType="VARCHAR" property="collegeid" />
+    <result column="credit" jdbcType="VARCHAR" property="credit" />
+    <result column="studytime" jdbcType="VARCHAR" property="studytime" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="starttime" jdbcType="VARCHAR" property="starttime" />
+    <result column="classtime" jdbcType="VARCHAR" property="classtime" />
+    <result column="place" jdbcType="VARCHAR" property="place" />
+  </resultMap>
+
+  <!--新增一条数据-->
+  <!--<insert id="insertCourse" parameterType="com.zjt.entity.Tcourse">
+    INSERT INTO t_course(id,coursename,teacherid,collegeid,credit,studytime,status,starttime,classtime,place)
+    VALUES (#{id},#{tcourse.coursename},#{tcourseteacherid},#{collegeid},#{credit},#{studytime},#{status}),#{starttime},#{classtime},#{place})
+  </insert>
+  &lt;!&ndash;更新一条数据&ndash;&gt;
+  <update id="updateCourse" parameterType="com.zjt.entity.Tcourse">
+    UPDATE t_course
+    set
+    <if test="coursename!=null">coursename = #{coursename}</if>
+    <if test="teacherid!=null">teacherid = #{teacherid}</if>
+    <if test="collegeid!=null">collegeid = #{collegeid}</if>
+    <if test="credit!=null">credit = #{credit}</if>
+    <if test="studytime!=null">studytime = #{studytime}</if>
+    <if test="status!=null">status = #{status}</if>
+    <if test="starttime!=null">starttime = #{starttime}</if>
+    <if test="classtime!=null">classtime = #{classtime}</if>
+    <if test="place!=null">place = #{place}</if>
+    where id=#{id}
+  </update>
+
+  &lt;!&ndash;删除&ndash;&gt;
+  <delete id="deleteCourse" parameterType="Long">
+    DELETE FROM t_course
+    WHERE  id = #{id}
+  </delete>
+
+  <select id="selectCourseById" resultMap="BaseResultMap">
+    select * from t_course where id = #{id}
+
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select * from t_course where id=#{id}
+  </select>-->
+  <select id="selectCourseByTeacherid" resultMap="BaseResultMap">
+    select * from tcourse where tcourse.teacherid = #{teacherid}
+  </select>
+  <!--根据课程状态获得数据-->
+  <select id="selectByStatus" resultMap="BaseResultMap">
+    select * from tcourse where status = #{status}
+  </select>
+
+</mapper>

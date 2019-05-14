@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.edu.mapper.TuserMapper">
+  <resultMap id="BaseResultMap" type="com.edu.entity.Tuser">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="bz" jdbcType="VARCHAR" property="bz" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="true_name" jdbcType="VARCHAR" property="trueName" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="remarks" jdbcType="VARCHAR" property="remarks" />
+  </resultMap>
+  <resultMap id="StudentResultMap" type="com.edu.entity.Tuser">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="bz" jdbcType="VARCHAR" property="bz" />
+    <result column="true_name" jdbcType="VARCHAR" property="trueName" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="sex" jdbcType="VARCHAR" property="sex" />
+    <result column="workingtime" jdbcType="VARCHAR" property="workingtime" />
+    <result column="political" jdbcType="VARCHAR" property="political" />
+    <result column="collegeid" jdbcType="VARCHAR" property="collegeid" />
+    <result column="classno" jdbcType="VARCHAR" property="classno" />
+    <result column="graduate" jdbcType="VARCHAR" property="graduate" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="nativeplace" jdbcType="VARCHAR" property="nativeplace" />
+  </resultMap>
+
+  <resultMap id="TeacherMap" type="com.edu.entity.Tuser">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="bz" jdbcType="VARCHAR" property="bz" />
+    <result column="true_name" jdbcType="VARCHAR" property="trueName" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="sex" jdbcType="VARCHAR" property="sex" />
+    <result column="workingtime" jdbcType="VARCHAR" property="workingtime" />
+    <result column="political" jdbcType="VARCHAR" property="political" />
+    <result column="collegeid" jdbcType="VARCHAR" property="collegeid" />
+    <result column="graduate" jdbcType="VARCHAR" property="graduate" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="nativeplace" jdbcType="VARCHAR" property="nativeplace" />
+  </resultMap>
+
+  <resultMap id="MapSelectCourse" type="com.edu.entity.Tuser">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="true_name" jdbcType="VARCHAR" property="trueName" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+  </resultMap>
+
+
+  <!--<update id="updateChangeInfor" >
+    update T_USER
+    <set>
+      <if test="bz != null">
+        bz = #{bz}
+      </if>
+      <if test = "truename != null">
+        true_name = #{truename}
+      </if>
+      <if test="sex != null">
+        sex = #{sex}
+      </if>
+      <if test="political != null">
+        political = #{political}
+      </if>
+      <if test="collegeid != null">
+        collegeid = #{collegeid}
+      </if>
+      <if test="graduate != null">
+        graduate = #{graduate}
+      </if>
+      <if test="phone">
+        phone = #{phone}
+      </if>
+      <if test=" nativeplace != null">
+        nativeplace = #{nativeplace}
+      </if>
+    </set>
+    where user_name = #{username}
+  </update>-->
+
+
+  <select id="selectTeacherNameByTeacherId" resultType="java.lang.String">
+    select true_name from t_user where t_user.id=#{teacherid}
+  </select>
+  <select id="selectByRemarks" resultMap="StudentResultMap" parameterType="java.lang.Integer">
+    select * from t_user where remarks = #{remarks}
+  </select>
+  <select id="selectSpecificInfor" resultMap="StudentResultMap" parameterType="java.lang.Integer">
+    select * from t_user where id=#{id}
+  </select>
+  <select id="selectByCollegeidAndClassno" resultMap="MapSelectCourse">
+    select * from t_user where t_user.collegeid = #{0} and t_user.classno = #{1}and t_user.remarks = "3"
+  </select>
+  <select id="selectByCollegeid" resultMap="MapSelectCourse">
+    select * from t_user where t_user.collegeid = #{collegeid}
+  </select>
+
+
+</mapper>
